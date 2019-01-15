@@ -5,7 +5,7 @@
       <a href="#" class="btn btn-primary" @click.prevent="tri = true">Prix</a>
     </div>
     <div class="row">
-      <div class="col-4" v-for="item in prix" :key="item" v-if="item.stock > 0">
+      <div class="col-4" v-for="item in prix" :key="item.id" v-if="item.stock > 0">
         <!-- :class="{display: item.stock <=0}" -->
         <div class="card" :class="{yellow: item.stock == 1}">
           <img class="card-img-top" :src="item.image" height="100%" alt="Card image cap">
@@ -19,7 +19,7 @@
               <span class="text-primary">
                 <strong>{{item.price| signe}}</strong>
               </span>
-              <a href="#" class="btn btn-primary">Ajouter</a>
+              <a href="#" class="btn btn-primary" @click.prevent="addBeerToBasket(item)">Ajouter</a>
               <span>{{item.stock}} en stock</span>
             </div>
           </div>
@@ -44,18 +44,26 @@ export default {
         // console.log(this.products);
       });
     },
+    addBeerToBasket(beer) {
+      this.$http.post("http://localhost:1337/api/v1/basket", beer).then(response => {
+        this.$store.commit("addToBasket", beer)
+        // un commit apelle une mutation
+      });
+      this.recup();
+    }
   },
+
   created() {
     this.recup();
   },
   //des que tu crées tu vas faire ça == hook (created ou mounted), dès que tu crées tu lances la fonction
 
   computed: {
-    prix () {
+    prix() {
       if (this.tri) {
         return this.products.concat().sort((a, b) => {
           return parseFloat(a.price) - parseFloat(b.price);
-        })
+        });
       } else {
         return this.products;
       }
